@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 
 class DemoBuildContext extends StatefulWidget {
@@ -13,76 +11,93 @@ class _DemoBuildContextState extends State<DemoBuildContext> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text("Demo inherited widget"),
-        ),
-        body: PositionedKey());
-  }
-}
-
-class PositionedKey extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() => PositionedKeyState();
-}
-
-class PositionedKeyState extends State<PositionedKey> {
-  late List<Widget> tiles;
-
-  @override
-  void initState() {
-    super.initState();
-    tiles = [
-      StatelessColorful(
-        key: UniqueKey(),
+      appBar: AppBar(
+        title: Text("Demo inherited widget"),
       ),
-      StatelessColorful(key: UniqueKey()),
-    ];
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        body: SafeArea(
-            child: Center(
-                child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: tiles))),
-        floatingActionButton: FloatingActionButton(
-            child: Icon(Icons.sentiment_very_satisfied), onPressed: swapTiles));
-  }
-
-  void swapTiles() {
-    setState(() {
-      tiles.insert(1, tiles.removeAt(0));
-    });
+      body: Container(
+        constraints: BoxConstraints.expand(),
+        child: Center(
+          child: OngBaWidget(
+            child: ChaMe(
+              child: ConCai(),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
 
-class StatelessColorful extends StatefulWidget {
-  StatelessColorful({Key? key}) : super(key: key);
+class OngBaWidget extends StatefulWidget {
+  Widget child;
+
+  String text = "Xin chao";
+
+  OngBaWidget({required this.child});
 
   @override
-  _StatelessColorfulState createState() => _StatelessColorfulState();
+  State<OngBaWidget> createState() => _OngBaWidgetState();
 }
 
-class _StatelessColorfulState extends State<StatelessColorful> {
-  final Color color = UniqueColorGenerator.getColor();
-
+class _OngBaWidgetState extends State<OngBaWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-        color: color,
-        child: Padding(
-          padding: EdgeInsets.all(70.0),
-        ));
+      child: Column(
+        children: [
+          Text("Ong ba"),
+          MyInheritedWidget(child: widget.child, text: widget.text)
+        ],
+      ),
+    );
   }
 }
 
-class UniqueColorGenerator {
-  static Random random = new Random();
+class MyInheritedWidget extends InheritedWidget {
+  Widget child;
+  String text;
 
-  static Color getColor() {
-    return Color.fromARGB(
-        255, random.nextInt(255), random.nextInt(255), random.nextInt(255));
+  MyInheritedWidget({required this.child, required this.text})
+      : super(child: child);
+
+  static MyInheritedWidget? of(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType();
+  }
+
+  @override
+  bool updateShouldNotify(covariant MyInheritedWidget oldWidget) {
+    return true;
+  }
+}
+
+class ChaMe extends StatefulWidget {
+  Widget child;
+
+  ChaMe({required this.child});
+
+  @override
+  State<ChaMe> createState() => _ChaMeState();
+}
+
+class _ChaMeState extends State<ChaMe> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Column(
+        children: [Text("Cha me"), widget.child],
+      ),
+    );
+  }
+}
+
+class ConCai extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    MyInheritedWidget? myInheritedWidget = MyInheritedWidget.of(context);
+    return Container(
+      child: Column(
+        children: [Text("Con cai"), Text("${myInheritedWidget?.text}")],
+      ),
+    );
   }
 }
